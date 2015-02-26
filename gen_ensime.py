@@ -1,7 +1,14 @@
-""" """
+"""A script to generate ENSIME configs for Maven scala projects
+
+ENSIME (ENhanced Scala Interaction Mode for Emacs) provides IDE-like
+features in emacs for Scala. It primarily targets sbt and Maven support
+is out of date.
+"""
 import os
 import subprocess
 import sys
+
+DEFAULT_SCALA_VERSION = "2.11.5"
 
 PROJECT_TEMPLATE = "\n".join([
     "(",
@@ -9,6 +16,7 @@ PROJECT_TEMPLATE = "\n".join([
     "  :scala-version {scala_version}",
     "  :root-dir {root_dir}",
     "  :cache-dir {cache_dir}",
+    "  :java-home {java_home}",
     "  :subprojects (",
     "{subproject_list}",
     "  )",
@@ -19,6 +27,7 @@ PROJECT_TEMPLATE = "\n".join([
 SUBPROJECT_TEMPLATE = "\n".join([
     "    (",
     "      :name {name}",
+    "      :module_name {name}",
     "      :target {target}",
     "      :test-target {test_target}",
     "      :source-roots {source_roots}",
@@ -49,9 +58,10 @@ def main():
 
     project = PROJECT_TEMPLATE.format(
         name=quote(name),
-        scala_version=quote("2.10.4"),
+        scala_version=quote(DEFAULT_SCALA_VERSION),
         root_dir=quote(root),
         cache_dir=quote(os.path.join(root, ".ensime_cache")),
+        java_home=quote(os.environ["JAVA_HOME"]),
         subproject_list="\n".join(subprojects)
     )
     print project
